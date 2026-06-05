@@ -1,0 +1,184 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Találd ki a Filmet!";
+}
+
+<div class="text-center">
+    <h1 class="col-12 col-md-12"><img class="col-12 col-md-12" src=/gfx/Logo-1.png /></h1>
+    
+    <div class="container display-8">
+  <div class="row justify-content-center gx-5 pixel-selector">
+
+            <div class="col-12 col-md-3" id="link-solo">
+            <div>
+                <div>
+                    <div class="pixel-selector-logo">
+                        <img src=~/gfx/single.png />
+                    </div>
+                </div>
+                <div class="pixel-selector-captions">
+                    <div class="pixel-selector-caption-large">
+                        Szóló Játék
+                    </div>
+                    <div class="pixel-selector-caption-small">
+                        Játssz egyedül!
+                    </div>
+                </div>
+            
+            </div>
+        </div>
+
+            <div class="col-12 col-md-3" id="link-duel">
+            <div>
+                            <div>
+                    <div class="pixel-selector-logo">
+                        <img src=~/gfx/duel.png />
+                    </div>
+                </div>
+                <div class="pixel-selector-captions">
+                    <div class="pixel-selector-caption-large">
+                        Párbaj Játék
+                    </div>
+                    <div class="pixel-selector-caption-small">
+                        Játssz valakivel online!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <div class="col-12 col-md-3" id="link-party">
+            <div>
+                            <div>
+                    <div class="pixel-selector-logo">
+                        <img src=~/gfx/party.png />
+                    </div>
+                </div>
+                <div class="pixel-selector-captions">
+                    <div class="pixel-selector-caption-large">
+                        Party Játék
+                    </div>
+                    <div class="pixel-selector-caption-small">
+                        Játsszatok sokan!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <div class="col-12 col-md-3" id="link-pixeletelo">
+                <div>
+                    <div>
+                        <div class="pixel-selector-logo">
+                            <img src=~/gfx/pixeletelo.png />
+                        </div>
+                    </div>
+                    <div class="pixel-selector-captions">
+                        <div class="pixel-selector-caption-large">
+                            Pixeletelő
+                        </div>
+                        <div class="pixel-selector-caption-small">
+                            Egy játék, sok játékos
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    <div class="col-12 col-md-12">
+        
+                <div class="latest">
+                    <div class="latest-header">Legügyesebb játékok</div>
+                    
+                    <div class="latest-games">
+
+                    @foreach(Models.Game game in Model.bestGames)
+                    {
+                        if (game.Date != null && game.UserId != null)
+                        {
+                            <div>
+                                <div class="avatar" style="background-image: url('data:image/png;base64,@Model.GetUserAvatar((long)game.UserId).Result')"></div>
+                                <div class="avatar-name">@Model.GetUsername((long)game.UserId).Result</div>
+                                <div class="date-tag">@game.Date.Value.ToString("MMMM dd", new System.Globalization.CultureInfo("hu-HU"))</div>
+                                <div title="Nehézségi fok" class="dif-tag dif-@game.GetDifficulty()">@game.GetDifficultyName()</div>
+                                <div class="result-tag scene-@game.GetHighlight()">@game.GetTime() s</div>
+                            </div>
+                        }
+                    }
+
+                    </div>
+                </div>
+    </div>
+
+  <div class="col-12 col-md-12">
+        
+                <div class="latest">
+                    <div class="latest-header">Legutóbbi játékok</div>
+                    
+                    <div class="latest-games">
+
+                    @foreach(Models.Game game in Model.latestGames)
+                    {
+                        <div>
+                            <div class="avatar" style="background-image: url('data:image/png;base64,@Model.GetUserAvatar((long)game.UserId).Result')"></div>
+                            <div class="avatar-name">@Model.GetUsername((long)game.UserId).Result</div>
+                            <div class="date-tag">@game.Date.Value.ToString("MMMM dd", new System.Globalization.CultureInfo("hu-HU"))</div>
+                            <div title="Nehézségi fok" class="dif-tag dif-@game.GetDifficulty()">@game.GetDifficultyName()</div>
+                            <div class="result-tag scene-@game.GetHighlight()">@game.GetTime() s</div>
+                        </div>
+                    }
+
+                    </div>
+                </div>
+    </div>
+
+  <div class="col-12 col-md-12">
+        <div>
+            <div>
+                <div class="how">
+                    <div class="how-header">Hogyan kell ezt játszani?</div>
+                    <div class="how-text">Filmposztereket fogsz látni, először pixelezve, alig felismerhetően, majd ahogy az idő telik, egyre jobban kirajzolódnak. A te feladatod, hogy minél hamarabb kitaláld a film címét. Az győz, aki gyorsabban kitalája az összes filmet.</div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <div class="col-12 col-md-12">
+    <div>
+        <div>
+            <div class="how">
+                <div class="how-header">Nyílt forráskódú projekt</div>
+                <div class="how-text">
+                    A PixelPárbaj egy hobbi projekt, amelynek a teljes forráskódja elérhető GitHubon.
+                    Ha találtál egy hibát, van egy jó ötleted, vagy egyszerűen csak fejlesztenél rajta,
+                    szívesen fogadjuk a hozzájárulásodat.
+                    <br /><br />
+                            GitHub: <a href="@Model.GithubRepo" target="_blank">@Model.GithubRepo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+</div>
+
+            <script>
+                $("#link-pixeletelo").click(function () {
+                    window.location.href = "/Duel?Type=2";
+                })
+
+                $("#link-solo").click(function () {
+                    window.location.href = "/SinglePlayer?Genre=0&Dif=0";
+                })
+
+                $("#link-duel").click(function () {
+                    window.location.href = "/Duel?Type=0";
+                })
+
+                $("#link-party").click(function () {
+                    window.location.href = "/Duel?Type=1";
+                })
+            </script>

@@ -1,0 +1,182 @@
+﻿@page
+@model PixelParbaj_CORE.Pages.RoomModel
+@{
+    ViewData["Title"] = "Szoba";
+}
+
+<script>
+
+    $(document).ready(function () {
+
+        var countDownDate = new Date("@Model.Room.Date.Value.AddMinutes(30).ToString() UTC").getTime();
+
+        // Update the count down every 1 second
+        var x = setInterval(function () {
+            // Get today's date and time
+            var now = new Date().getTime();
+            // Find the distance between now and the count down date
+            var distance = countDownDate - now;
+
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Display the result in the element with id="demo"
+            document.getElementById("room-countdown").innerHTML = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+
+            // If the count down is finished, write some text
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("room-countdown").innerHTML = "VÉGE";
+            }
+        }, 1000);
+
+    })
+
+
+</script>
+
+<div>
+@if (Model.YourGame == null || Model.Room.Date >= DateTime.Now.AddMinutes(30))
+    {
+        <div style="margin-top: 20px;" class="play action-button"><a href="/SinglePlayer?handler=room&RoomHash=@Model.Room.ShareId">Játék Indítása</a></div>
+    }
+
+<div class="general-wrapper" style="display: inherit !important;">
+   
+    <div class="general-header">
+        @Model.Room.GetName()
+    </div>
+
+    @if((Model.Games == null || (Model.Games.Count() < Model.Room.MaxUser)) && Model.Room.Date <= DateTime.Now.AddMinutes(30))
+    {
+            @if (Model.Room.MaxUser == 2)
+            {
+                <div class="room-poster room-duel">
+                    <div class="room-countdown-wrapper">
+                        <div id="room-countdown">30:00:00</div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="room-poster room-party">
+                    <div class="room-countdown-wrapper">
+                        <div id="room-countdown">30:00:00</div>
+                    </div>
+                </div>
+            }
+
+        <div style="margin-top:10px;" class="share-link" share-id="@Model.Room.ShareId">
+        Szobalink vágólapra másolása
+        </div>
+    }
+    else
+    {
+            <div class="winner">
+                A győztes: <span>@Model.GetUsername((long)Model.Games.ElementAt(0).UserId).Result</span>
+        </div>
+    }
+
+    <div class="hidden">
+    <div class="form-input">
+
+        <div>Szoba Azonosító:</div>
+        <div>@Model.Room.Id</div>
+
+    </div>
+
+    <div class="form-input">
+
+        <div>Szoba Hash:</div>
+        <div>@Model.Room.ShareId</div>
+
+    </div>
+
+        <div class="form-input">
+
+        <div>Szoba Tulajdonos:</div>
+        <div>@Model.User.Name</div>
+
+    </div>
+
+        <div class="form-input">
+
+        <div>Létrehozás Dátuma:</div>
+        <div>@Model.Room.Date</div>
+
+    </div>
+
+        <div class="form-input">
+
+        <div>Maximum Játékosok:</div>
+        <div>@Model.Room.MaxUser</div>
+
+    </div>
+    </div>
+
+    <div class="generic-table">
+    <div class="generic-table-header">Eredmények: </div>
+
+    @if(Model.Games == null)
+    {
+        <div style="text-align: center;font-style: italic;font-size: 13px;">Nincsenek eredmények</div>
+    }
+    else
+    {
+        foreach(Models.Game game in Model.Games)
+        {
+            <div>
+                <div game-id=@game.Id user-id=@game.UserId>@Model.GetUsername((long)@game.UserId).Result</div>
+                <div class="result-tag scene-@game.GetHighlight()">@game.GetTime() s</div>
+            </div>
+        }
+    }
+    </div>
+
+</div>
+
+</div>
+
+<script>
+
+    $(".share-link").click(function (){
+    
+        var copyText = "http://www.pixelparbaj.com/Room?handler=room&RoomHash=" + $(this).attr("share-id");
+        /* Copy the text inside the text field */
+        copyToClipboard(copyText);
+
+        $(".share-link").addClass("green");
+        $(".share-link").text("Vágólapra másolva! Küldheted az ismerősödnek!");
+
+        setTimeout(function (){        
+            $(".share-link").removeClass("green");
+            $(".share-link").text("Szobalink vágólapra másolása");
+        }, 4000);
+    
+    });
+
+    function copyToClipboard(text) {
+        var sampleTextarea = document.createElement("textarea");
+        document.body.appendChild(sampleTextarea);
+        sampleTextarea.value = text; //save main text in it
+        sampleTextarea.select(); //select textarea contenrs
+        document.execCommand("copy");
+        document.body.removeChild(sampleTextarea);
+    }
+
+    /*$("#generate-duel").click(function (){
+    
+        currentRequest = $.ajax({
+                type: "GET",
+                url: "/GenerateRoom",
+                cache: false,
+                data: { Owner: "@Model.User.Email", Max: 2 },
+                success: function (result) {
+                    $("#duel-id").text(result);
+                }
+            });
+    
+    })*/
+
+</script>

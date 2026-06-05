@@ -1,0 +1,38 @@
+﻿@page
+@model PixelParbaj_CORE.LoginModel
+@{
+    ViewData["Title"] = "Bejelentkezés";
+}
+
+<div class="general-wrapper">
+
+<form method="post" style="padding: 0px 15px;width: 350px;"> 
+      
+    @if(Model.Login != 0)
+    {
+        <div class="error">
+            @string.Format("{0}", Model.Login == -1 ? "Felhasználó ilyen email címmel nem található." : "Rossz jelszó vagy felhasználónév.")
+        </div>
+    }
+        
+    <div class="form-header">
+        Jelentkezz Be!
+    </div>
+      <div class="form-input"> 
+          <div>Email:</div>
+        <input class="form-input-element" type="email" id="Email" name="Email" />
+      </div> 
+      
+      <div class="form-input"> 
+          <div>Jelszó:</div>
+        <input class="form-input-element" type="password" id="Password" name="Password" />
+      </div> 
+   
+      <input asp-for="submitRedirect" value="@Model.RedirectURL" />
+      <input style="margin-top: 25px;margin-bottom: 15px;" class="generic-button" type="submit" value="Belépés" /> 
+
+      <div class="lost-password"><a href="~/LostPassword">Elfelejtettem a Jelszavam</a></div>
+
+</form>
+
+</div>

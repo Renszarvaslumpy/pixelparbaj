@@ -1,0 +1,65 @@
+﻿@page
+@model PixelParbaj_CORE.Pages.PixelModel
+@{
+    ViewData["Title"] = "Szoba";
+}
+
+<div>
+
+    <div class="how">
+        <div class="how-header">Hogyan kell ezt játszani?</div>
+        <div class="how-text">Mindenki a saját telefonján tud játszani. Látogass el az oldalra, és a Pixeletelő játék alatt csatlakozz a szobához. Ha mindenki bent van, mehet a Játék Indítása. Ezen a képernyőn látod majd a posztereket, a címeket pedig a saját telefonodon kell megtippelni.</div>
+    </div>
+
+    <div style="margin-top: 20px;" class="play action-button"><a href="/Pixeletelo/Theatre?&RoomHash=@Model.Room.ShareId">Játék Indítása</a></div>
+
+    <div class="general-wrapper" style="display: inherit !important;">
+   
+        <div class="general-header">
+            @Model.Room.GetName()
+        </div>
+
+        <div class="room-poster room-code-poster">
+            <div class="room-code-wrapper">
+                <div id="room-code">@Model.RoomHash</div>
+                <div id="room-qrcode-b64">
+                    <img src="data:image/png;base64,@Model.QrCode" />
+                </div>
+            </div>
+        </div>
+    
+        <div class="generic-table">
+            <div class="generic-table-header">Játékosok:</div>
+            <div class="player-list"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+    $(document).ready(function () {
+
+        setInterval(function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/Pixeletelo/Get",
+                cache: false,
+                data: { RoomHash: '@Model.RoomHash' },
+                success: function (result) {
+                    console.log(result);
+                    UpdatePlayers(result.joins);
+                }
+            });
+        }, 3000);
+    });
+
+    function UpdatePlayers(players) {
+        $(".player-list > div").remove();
+        for (var i = 0; i < players.length; i++) {
+            $(".player-list").append("<div><div class=\"main-avatar\" style=\"background-image:url('data:image/png;base64,"+players[i].avatar+"')\"></div><div>" + players[i].name + "</div></div>");
+        }
+    }
+
+</script>

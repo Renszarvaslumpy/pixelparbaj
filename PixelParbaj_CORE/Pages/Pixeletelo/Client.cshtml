@@ -1,0 +1,408 @@
+﻿@page
+@model PixelParbaj_CORE.Pages.ClientModel
+@{
+    ViewData["Title"] = "Játék";
+    int count = 0;
+}
+
+<div class="client-overlay-end hidden">
+    <div>A játék végetért.</div>
+</div>
+
+<div class="client-overlay-start">
+    <div>A játék hamarosan kezdődik.</div>
+</div>
+
+<div class="client-overlay hidden">
+    <div>A köröd véget ért, készülj a következőre.</div>
+</div>
+
+    <div>
+        <div>
+        <div class="theatre-client-callout">
+            <div class="">Kezd el írni a megfejtést</div>
+            <div class="reset">Törlés</div>
+            </div>
+        
+        <div class="popup-header width-full">
+
+            <div class="popup-title width-full">
+
+                <input type="text" class="width-full input-bold" id="movie-input" />
+
+                </div>
+            </div>
+        <div class="popup-content width-full">
+            <div class="option-list-options width-full">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="movies hidden">
+    <div class="current-poster" movie-counter="1" movie-id="@Model.Room.Movie1"></div>
+    <div class="current-poster" movie-counter="2" movie-id="@Model.Room.Movie2"></div>
+    <div class="current-poster" movie-counter="3" movie-id="@Model.Room.Movie3"></div>
+    <div class="current-poster" movie-counter="4" movie-id="@Model.Room.Movie4"></div>
+    <div class="current-poster" movie-counter="5" movie-id="@Model.Room.Movie5"></div>
+    <div class="current-poster" movie-counter="6" movie-id="@Model.Room.Movie6"></div>
+    <div class="current-poster" movie-counter="7" movie-id="@Model.Room.Movie7"></div>
+    <div class="current-poster" movie-counter="8" movie-id="@Model.Room.Movie8"></div>
+</div>
+
+
+<script type="text/javascript">
+
+    var lastSuccess = 0;
+    var counter = 0;
+    var GameResults = [];
+    var Movies = [];
+    var inPause = true;
+
+    function Game(id, time) {
+        this.id = id;
+        this.time = time;
+    }
+
+    function now() {
+        return window.performance ? window.performance.now() : Date.now();
+    }
+    
+    $(document).ready(function (){
+    
+        Start();
+        window.onbeforeunload = function(e) {
+            return 'Biztos ki akarsz lépni a játékból? Utána már nem lesz lehetőséged folytatni!';
+        };
+    
+    })
+
+    function Start(){
+
+        setTimeout(function () {
+
+            GetProgress();
+
+        }, 1000);
+
+    }
+
+    /*function Next(){
+
+        var id = $(".movies-list-poster").not(".hidden").attr("movie-id");
+        
+        var current = $(".movies-list-poster").not(".hidden");
+        $(current).addClass("hidden");
+
+        if($(current).next().length > 0){
+            $(current).next().removeClass("hidden");
+
+        }else{
+            End();
+        }
+
+    }*/
+
+    function End(){
+
+        window.onbeforeunload = null;
+        console.log("End");
+
+        $("#game-finished").show();
+        $("#game-finished").addClass("magictime").removeClass("puffOut");
+        $("#game-finished").addClass("magictime").addClass("puffIn");
+        $(".movie-input-wrapper").addClass("hidden");
+        $(".posters").addClass("hidden");
+        $(".countdown-wrapper").addClass("hidden");
+
+        //SaveGame();
+
+        if (IsRoom()) {
+            $("#back-to").removeClass("hidden");
+        }
+
+    }
+
+    var currentRequest = {abort: function () {}};
+    $('#movie-input').on('input',function(e){
+    
+        currentRequest.abort();
+        if($(this).val().length > 1){
+            currentRequest = $.ajax({
+                type: "GET",
+                url: "/api/ActiveSearch",
+                cache: false,
+                data: { Term: $(this).val() },
+                success: function (result) {
+
+                    $(".option-list-options").html("");
+                    
+                    var max = result.length <= 30 ? result.length : 30;
+
+                    for(var i = 0; i < max; i++){
+                        $(".option-list-options").append("<div movie-id=\""+result[i].id+"\" >"+result[i].name+"</div>");
+                    }
+
+                }
+            });
+        }
+    });
+
+    $(document).on("click", ".option-list-options > div", function () {
+
+        var id = $(this).attr("movie-id");
+        result = Check(id);
+
+        if (result) {
+
+            $(this).addClass("green");
+            
+            /*setTimeout(function () {
+
+                Next();
+
+            }, 250);*/
+
+        } else {
+
+            $(this).addClass("red");
+            $(this).addClass("shake-notification");
+
+        }
+
+    });
+
+    function Check(id){
+
+        let c = counter;
+        let currentMovie = $(".current-poster[movie-counter='" + c + "']").attr("movie-id");
+        //var currentMovie = $(".current-poster").attr("movie-id");
+
+        console.log("Click ID: " + id);
+        console.log("Current Movie ID: " + currentMovie);
+
+        if (id == currentMovie) {
+
+            reset();
+            UpdateProgress();
+            $(".client-overlay").removeClass("hidden");
+            console.log("Success");
+            lastSuccess = counter;
+            return true;
+
+        } else {
+
+            console.log("Incorrect");
+            return false;
+
+        }
+
+    }
+
+    function SaveGame(){
+        currentRequest = $.ajax({
+            type: "GET",
+            url: "/api/SaveGame",
+            cache: false,
+            data: { M1: GameResults[0].id, T1: GameResults[0].time, 
+                    M2: GameResults[1].id, T2: GameResults[1].time,
+                    M3: GameResults[2].id, T3: GameResults[2].time,
+                    M4: GameResults[3].id, T4: GameResults[3].time,
+                    M5: GameResults[4].id, T5: GameResults[4].time,
+                    M6: GameResults[5].id, T6: GameResults[5].time,
+                    M7: GameResults[6].id, T7: GameResults[6].time,
+                    M8: GameResults[7].id, T8: GameResults[7].time,
+                    Email: "@Model.UserEmail",
+                    Room: "@Model.RoomHash",
+                    Genre: @Model.Genre,
+                    Dif: @Model.Dif
+            },
+            success: function (result) {
+                console.log(result);
+            }
+        });
+    }
+
+    function GetProgress() {
+        currentRequest = $.ajax({
+            type: "GET",
+            url: "/api/Pixeletelo/GetScene",
+            cache: false,
+            data: { RoomHash: "@Model.RoomHash" },
+            success: function (result) {
+
+                let c = 0;
+                let ingame = false;
+
+                if (result.scene != undefined) {
+
+                    if (result.scene.started == 1) {
+                        $(".client-overlay-start").addClass("hidden");
+                    }
+
+                    if (result.scene.finished == 1) {
+
+                        $(".client-overlay").addClass("hidden");
+                        $(".client-overlay-end").removeClass("hidden");
+                        return;
+
+                    } else {
+
+                        // movie counter
+                        if (result.scene.scene1Started != null) {
+                            c = 1;
+                            ingame = result.scene.scene1 == null ? true : false;
+                        }
+                        if (result.scene.scene2Started != null) {
+                            c = 2;
+                            ingame = result.scene.scene2 == null ? true : false;
+                        }
+                        if (result.scene.scene3Started != null) {
+                            c = 3;
+                            ingame = result.scene.scene3 == null ? true : false;
+                        }
+                        if (result.scene.scene4Started != null) {
+                            c = 4;
+                            ingame = result.scene.scene4 == null ? true : false;
+                        }
+                        if (result.scene.scene5Started != null) {
+                            c = 5;
+                            ingame = result.scene.scene5 == null ? true : false;
+                        }
+                        if (result.scene.scene6Started != null) {
+                            c = 6;
+                            ingame = result.scene.scene6 == null ? true : false;
+                        }
+                        if (result.scene.scene7Started != null) {
+                            c = 7;
+                            ingame = result.scene.scene7 == null ? true : false;
+                        }
+                        if (result.scene.scene8Started != null) {
+                            c = 8;
+                            ingame = result.scene.scene8 == null ? true : false;
+                        }
+
+                        if (ingame && lastSuccess != c) {
+                            $(".client-overlay").addClass("hidden");
+                        } else {
+                            $(".client-overlay").removeClass("hidden");
+                            reset();
+                        }
+                    }
+
+                    console.log("Ongoing [" + ingame + "] - [" + counter + "] - [" + c + "]");
+                }
+
+                counter = c;
+
+                setTimeout(function () {
+                    GetProgress();
+                }, 1000);
+
+            },
+            error: function (result) {
+                setTimeout(function () {
+                    GetProgress();
+                }, 1000);
+            }
+        });
+    }
+
+    function UpdateProgress() {
+        currentRequest = $.ajax({
+            type: "GET",
+            url: "/api/Pixeletelo/UpdateClientProgress",
+            cache: false,
+            data: {
+                RoomHash: "@Model.RoomHash",
+                Movie: counter
+                },
+            success: function (result) {
+                console.log(result);
+            }
+        });
+    }
+
+    function IsRoom(){
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const room = urlParams.get('RoomHash')
+        if(room){
+            return true;
+        }
+        return false;
+    }
+
+    $(".reset").click(function () {
+
+        reset();
+
+    })
+
+    function reset(){
+        $(".option-list-options").html("");
+        $("#movie-input").text("");
+        $("#movie-input").val("");
+    }
+
+    </script>
+
+@if (string.IsNullOrEmpty(Model.UserEmail))
+{
+    <script>
+
+        // cookie for 3 plays
+
+        $(document).ready(function () {
+
+            var count = getCookie("games");
+
+            console.log(count);
+
+            if(count === undefined || count == ""){
+                PlayCount();
+            }else{
+                if(Number(count) >= 3){
+                    // cannot play anymore
+                    GameOver();
+                }
+            }
+
+        })
+
+        function GameOver(){
+            window.onbeforeunload = null;
+            window.alert("Sajnos elérted a maximális játékok számát. Ha többet szeretnél játszani, regisztrálj be!");
+            location.href = "/Login";
+        }
+
+        function PlayCount(){
+
+            var count = getCookie("games");
+            if(count === undefined || count == ""){
+                document.cookie = "games=" + 1;
+            }else{
+                document.cookie = "games=" + Number(count) + 1;
+            }
+
+        }
+
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        </script>
+}

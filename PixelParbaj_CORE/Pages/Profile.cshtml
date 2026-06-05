@@ -1,0 +1,64 @@
+﻿@page
+@model PixelParbaj_CORE.ProfileModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="full-selection change-avatar col-12 row hidden">
+
+    @foreach(string name in Models.User.PredefinedAvatars)
+    {
+        <div class="avatar-option" avatar-name="@name" style="background-image: url('data:image/png;base64,@Models.User.GetAvatar(name)')"></div>
+    }
+
+</div>
+
+<div class="general-wrapper col-12">
+
+    <div class="profile col-12 col-md-4">
+        <div class="profile-avatar" style="background-image: url('data:image/png;base64,@Model.user.GetAvatar()')">
+
+            <div class="profile-change-avatar">
+                Avatár változtatása
+            </div>
+
+        </div>
+        <div class="profile-details">
+
+            <div class="profile-name">@Model.user.Name</div>
+            <div>Email: @Model.user.Email</div>
+            <div>Játékok száma: @Model.plays</div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    $(".profile-change-avatar").click(function (){
+    
+        $(".change-avatar").removeClass("hidden");
+    
+    })
+
+    $(".avatar-option").click(function (){
+
+        var a = $(this).attr("avatar-name");
+        $(".change-avatar").addClass("hidden");
+
+        currentRequest = $.ajax({
+                type: "GET",
+                url: "/Profile",
+                cache: false,
+                data: { handler: "update", Avatar: a },
+                success: function (result) {
+
+                    location.reload();
+
+                }
+            });
+
+    })
+
+</script>

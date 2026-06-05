@@ -1,0 +1,113 @@
+﻿@page
+@model PixelParbaj_CORE.Pages.DuelModel
+@{
+}
+
+<div class="general-wrapper">
+
+    @if (Model.User == null)
+    {
+        <div class="notification">@Html.Raw(Code.Strings.GetLoginLabel())</div>
+        <div style="margin-top:10px;" class="generic-button"><a href="~/Login">Belépés</a></div>
+    }
+
+    @if(Model.User != null)
+    {
+        <div class="general-header">Csatlakozás Pixeletelő Szobához</div>
+        <div style="margin-top: 20px;" class="general-option">
+            <div>Szoba kódja:</div>
+            <input type="text" id="join-room-code" class="general-input" value="" />
+            <div style="margin-left:5px;" class="action-button" id="join-action">Csatlakozás</div>
+        </div>
+    }
+
+    
+
+</div>
+
+<div class="general-wrapper">
+
+    @if (Model.User != null)
+    {
+        <div class="general-header">Játék Generálása</div>
+                <div style="margin-top: 20px;" class="general-option">
+            <div>Megnevezés:</div>
+            <input type="text" id="room-name" class="general-input" value="@Model.User.Name Szobája" />
+            <input type="text" id="max" hidden value="@Model.Max" />
+        </div>
+        <div class="general-option">
+            <div>Műfaj:</div>
+            <select id="room-genre" class="general-select">
+                <option value="0">Horror</option>
+            </select>
+        </div>
+        <div class="general-option">
+            <div>Nehézség:</div>
+            <select id="room-dif" class="general-select">
+                <option value="0">Normál</option>
+                <option value="1">Nehéz</option>
+                <option value="2">Mazochista</option>
+                <option value="3">Lehetetlen</option>
+            </select>
+        </div>
+        <div style="margin-top: 20px;" class="action-button" id="generate-duel">Párbaj Generálása</div>
+
+        <div id="duel-id" class="hidden"><a href=""></a></div>
+    }
+    
+</div>
+
+<script>
+
+    $("#generate-duel").click(function (){
+    
+        var name = $("#room-name").val();
+        var genre = $("#room-genre").val();
+        var dif = $("#room-dif").val();
+        var max = $("#max").val();
+
+        currentRequest = $.ajax({
+                type: "GET",
+                url: "/api/GenerateRoom",
+                cache: false,
+                data: { Dif: dif, Genre: genre, Name: name, Owner: "@Model.UserEmail", Max: max },
+                success: function (result) {
+                    $("#duel-id > a").html("Szoba Elkészült!<br />Kattints ide!");
+
+                    if (max == 999) {
+                        $("#duel-id > a").attr("href", "/Pixel?RoomHash=" + result);
+                    }
+                    else {
+                        $("#duel-id > a").attr("href", "/Room?RoomHash=" + result);
+                    }
+                    $("#duel-id > a")[0].click();
+                }
+            });
+    
+    })
+
+    $("#join-action").click(function () {
+
+        currentRequest = $.ajax({
+            type: "GET",
+            url: "/api/Pixeletelo/Join",
+            cache: false,
+            data: { RoomHash: $("#join-room-code").val(), UserId: "@Model.UserId" },
+            success: function (r) {
+
+                if (r.joinSuccess) {
+                    if ($("#max").val() == "999") {
+                        location.href = "/Pixeletelo/Client?RoomHash=" + $("#join-room-code").val();
+                    } else {
+                        location.href = "/Room?RoomHash=" + $("#join-room-code").val();
+                    }
+                } else {
+                    alert("Nem sikerült csatlakozni a szobához! Ellenőrizd a kódot.");
+                }
+
+            }
+        });
+
+    })
+
+</script>

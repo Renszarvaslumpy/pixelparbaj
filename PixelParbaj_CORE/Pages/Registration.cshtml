@@ -1,0 +1,33 @@
+﻿@page
+@model PixelParbaj_CORE.RegistrationModel
+@{
+    ViewData["Title"] = "Regisztráció";
+}
+
+<div class="general-wrapper">
+<form method="post" style="padding: 0px 15px;width: 350px;"> 
+      
+    <div class="form-header">
+        Regisztráció
+    </div>
+
+      <div class="form-input"> 
+        <div>Megjelenített Név:</div>
+        <input class="form-input-element" type="text" id="Name" name="Name" />
+      </div> 
+
+      <div class="form-input"> 
+        <div>Email:</div>
+        <input class="form-input-element" type="email" id="Email" name="Email" />
+      </div> 
+      
+      <div class="form-input"> 
+        <div>Jelszó:</div>
+        <input class="form-input-element" type="password" id="Password" name="Password" /> 
+      </div>
+
+      <input class="form-input-element" type="hidden" id="Cheater" name="Cheater" value="0" />
+
+        <input style="margin-top: 25px;margin-bottom: 15px;" class="generic-button"  type="submit" value="Regisztráció" /> 
+</form>
+</div>

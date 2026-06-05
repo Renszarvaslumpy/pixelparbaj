@@ -1,0 +1,600 @@
+﻿@page
+@model PixelParbaj_CORE.Pages.SinglePlayerModel
+@{
+    ViewData["Title"] = "Játék";
+    int count = 0;
+}
+
+            <div class="popup-container">
+            <div style="display:none;">
+                <div style="display:none;">
+                    <div class="popup-close-action">Bezár</div>
+                    <div class="popup-header">
+                        <div class="popup-title">
+
+                            <input type="text" id="movie-input" />
+                            <div>
+                                <div id="action-countdown">10.00</div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="popup-content">
+
+                        <div class="option-list-options">
+
+                        </div>
+                        
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<div class="movies-list">
+
+     <div id="game-result">
+
+        <div class="game-scene"></div>
+        <div class="game-scene"></div>
+        <div class="game-scene"></div>
+        <div class="game-scene"></div>
+        <div class="game-scene"></div>
+        <div class="game-scene"></div>
+        <div class="game-scene"></div>
+        <div class="game-scene"></div>
+
+    </div>
+
+    <div class="countdown-wrapper">
+        <div id="countdown">20.00</div>
+    </div>
+
+    <div class="posters">
+    @foreach(var movie in Model.SelectedMovies)
+    {
+            List<string> pixelated = movie.GetPixelatedPosters();
+            <div class="movies-list-poster hidden" movie-id="@movie.Id" movie-imdb="@movie.Imdb">
+
+            <div class="movies-list-poster-image" style="background-image:url('data:image/jpg;base64,@movie.GetPoster()')">
+
+                    @for(int i = 0; i < pixelated.Count; i++)
+                    {
+                        <div style="background-image:url('data:image/jpg;base64,@pixelated[i]')"></div>
+                    }
+                
+            </div>
+
+        </div>
+        count++;
+    }
+    </div>
+
+    <div class="movie-input-wrapper">
+        <div id="movie-action" class="action-button">Vágom!</div>
+            </div>
+    
+    <div id="game-finished">
+        <div>
+            <div class="game-scene-finished"></div>
+            <div class="game-scene-finished"></div>
+            <div class="game-scene-finished"></div>
+            <div class="game-scene-finished"></div>
+            <div class="game-scene-finished"></div>
+            <div class="game-scene-finished"></div>
+            <div class="game-scene-finished"></div>
+            <div class="game-scene-finished"></div>
+        </div>
+    </div>
+
+    <div>
+        <div id="back-to" class="generic-button hidden"><a href="/Room?RoomHash=@Model.RoomHash">Vissza a Párbajra / Partiba</a></div>
+    </div>
+
+</div>
+
+<script type="text/javascript">
+
+    var counter = 0;
+    var GameResults = [];
+    var Movies = [];
+
+    function Game(id, time) {
+        this.id = id;
+        this.time = time;
+    }
+
+    function now() {
+        return window.performance ? window.performance.now() : Date.now();
+    }
+    
+    var count = 20000;
+    var delay = 20; //20 ms. This will be only indicative. There's no guarantee the browswer will call the function after exactly this time
+    
+    var countAction = 10000;
+    var delayAction = 20;
+
+    var initTick = 0;
+    var initTickAction = 0;
+
+    var paused = false;
+    var pausedAction = false;
+
+    function tick() {
+
+        if(paused){
+            return;
+        }
+
+       var timerElement = document.getElementById("countdown");
+       var remaining = (count - (now() - initTick)) / 1000;  
+       remaining = remaining >= 0 ? remaining : 0;
+
+       var secs = remaining.toFixed(2);
+
+       PixelNext(secs);
+
+       timerElement.innerHTML = secs;
+       if (remaining){ 
+           setTimeout(tick, delay);
+       }else{
+           Next();
+       }
+    }
+    
+    var remainingAction;
+    function tickAction() 
+    {
+        var timerElement = document.getElementById("action-countdown");
+        var remaining = (countAction - (now() - initTickAction)) / 1000;  
+        remaining = remaining >= 0 ? remaining : 0;
+        var secs = remaining.toFixed(2);
+        remainingAction = remaining.toFixed(2);
+        timerElement.innerHTML = secs;
+
+        if(pausedAction){
+            return;
+            
+            let add = 10000 - (secs * 1000);
+            console.log(count);
+            console.log(add);
+            count += 10000 - (secs * 1000);
+            console.log(count);
+        }
+
+        if (remaining){
+            setTimeout(tickAction, delayAction);
+        }else{
+            paused = false;
+            count += 10000;
+            tick();
+            //$(".movie-action-wrapper").addClass("hidden");
+            HidePopup();
+        }
+    }
+
+    initTick = now();
+    setTimeout(tick, delay);
+
+    $(document).ready(function (){
+    
+        Start();
+        window.onbeforeunload = function(e) {
+            return 'Biztos ki akarsz lépni a játékból? Utána már nem lesz lehetőséged folytatni!';
+        };
+    
+    })
+
+    $(".popup-close-action").click(function (){
+    
+        console.log("Close");
+           paused = false;
+           pausedAction = true;
+           count += 10000 - (remainingAction * 1000);
+           tick();
+           HidePopup();
+    
+    })
+
+    function Start(){
+
+        $(".movies-list-poster").first().removeClass("hidden");
+        currentMovie = $(".movies-list-poster").first().attr("movie-id");
+    }
+
+    var a,b,c,d,e,f,g,h,i;
+    function PixelNext(secs){
+
+        if(secs < 18 && secs > 16){
+            if(a){
+                return;
+            }
+            a = true;
+            $(".movies-list-poster").not(".hidden").children().children().last().remove();
+        }
+        if(secs < 16 && secs > 14){
+            if(b){
+                return;
+            }
+            b = true;
+            $(".movies-list-poster").not(".hidden").children().children().last().remove();
+        }
+        if(secs < 14 && secs > 12){
+            if(c){
+                return;
+            }
+            c = true;
+            $(".movies-list-poster").not(".hidden").children().children().last().remove();
+        }
+        if(secs < 12 && secs > 10){
+            if(d){
+                return;
+            }
+            d = true;
+            $(".movies-list-poster").not(".hidden").children().children().last().remove();
+        }
+        if(secs < 10 && secs > 8){
+           if(e){
+                return;
+            }
+            e = true;
+            $(".movies-list-poster").not(".hidden").children().children().last().remove();
+        }
+        if(secs < 8 && secs > 6){
+           if(f){
+                return;
+            }
+            f = true;
+            $(".movies-list-poster").not(".hidden").children().children().last().remove();
+        }
+        if(secs < 6 && secs > 4){
+         if(g){
+                return;
+            }
+            g = true;
+            $(".movies-list-poster").not(".hidden").children().children().last().remove();
+        }
+        if(secs < 4 && secs > 2){
+          if(h){
+                return;
+            }
+            h = true;
+            $(".movies-list-poster").not(".hidden").children().children().last().remove();
+        }
+        if(secs < 2){
+          if(i){
+                return;
+            }
+            i = true;
+            $(".movies-list-poster").not(".hidden").children().children().last().remove();
+        }
+        
+    }
+
+    function Next(){
+
+        a = false;
+        b = false;
+        c = false;
+        d = false;
+        e = false;
+        f = false;
+        g = false;
+        h = false;
+        i = false;
+
+        var id = $(".movies-list-poster").not(".hidden").attr("movie-id");
+        var time = $("#countdown").text();
+        var game = new Game(id, time)
+        GameResults.push(game);
+
+        if(Number(time) > 16){
+            $(".game-scene").eq(counter).addClass("scene-5");
+            $(".game-scene-finished").eq(counter).addClass("scene-5");
+        }else if(Number(time) <= 16 && Number(time) > 12){
+            $(".game-scene").eq(counter).addClass("scene-4");
+            $(".game-scene-finished").eq(counter).addClass("scene-4");
+        }else if(Number(time) <= 12 && Number(time) > 8){
+            $(".game-scene").eq(counter).addClass("scene-3");
+            $(".game-scene-finished").eq(counter).addClass("scene-3");
+        }else if(Number(time) <= 8 && Number(time) > 4){
+            $(".game-scene").eq(counter).addClass("scene-2");
+            $(".game-scene-finished").eq(counter).addClass("scene-2");
+        }else{
+            $(".game-scene").eq(counter).addClass("scene-1");
+            $(".game-scene-finished").eq(counter).addClass("scene-1");
+        }
+        
+        $(".game-scene-finished").eq(counter).text(time);
+
+        counter++;
+
+        console.log(GameResults);
+
+        var current = $(".movies-list-poster").not(".hidden");
+        $(current).addClass("hidden");
+
+        if($(current).next().length > 0){
+            $(current).next().removeClass("hidden");
+
+        paused = false;
+        count = 20000;
+        initTick = now();
+        setTimeout(tick, delay);
+
+        }else{
+            End();
+        }
+
+        HidePopup();
+
+    }
+
+    function End(){
+
+        window.onbeforeunload = null;
+        paused = true;
+        console.log("End");
+
+        $("#game-finished").show();
+        $("#game-finished").addClass("magictime").removeClass("puffOut");
+        $("#game-finished").addClass("magictime").addClass("puffIn");
+        $(".movie-input-wrapper").addClass("hidden");
+        $(".posters").addClass("hidden");
+        $(".countdown-wrapper").addClass("hidden");
+
+        SaveGame();
+
+        if(IsRoom()){
+            $("#back-to").removeClass("hidden");
+        }
+
+    }
+
+    $("#movie-action").click(function(){
+
+        ShowPopup();
+
+        pausedAction = false;
+            paused = true;
+            $(".movie-action-wrapper").removeClass("hidden");
+            initTickAction = now();
+            setTimeout(tickAction, delayAction);
+            $("#movie-input").focus();
+
+    })
+
+    var currentRequest = {abort: function () {}};
+    $('#movie-input').on('input',function(e){
+    
+        currentRequest.abort();
+        if($(this).val().length > 1){
+            currentRequest = $.ajax({
+                type: "GET",
+                url: "/api/ActiveSearch",
+                cache: false,
+                data: { Term: $(this).val() },
+                success: function (result) {
+
+                    $(".option-list-options").html("");
+                    console.log(result);
+
+                    var max = result.length <= 30 ? result.length : 30;
+
+                    for(var i = 0; i < max; i++){
+                        $(".option-list-options").append("<div movie-id=\""+result[i].id+"\" >"+result[i].name+"</div>");
+                    }
+
+                }
+            });
+        }
+    });
+
+    $(document).on("click", ".option-list-options > div", function () {
+
+        var id = $(this).attr("movie-id");
+        result = Check(id);
+
+        if(result){
+
+            $(this).addClass("green");
+            pausedAction = true;
+
+            setTimeout(function (){
+                
+                Next();
+
+            }, 250);
+
+        }else{
+
+            $(this).addClass("red");
+            $(this).addClass("shake-notification");
+
+        }
+
+    });
+
+    function Check(id){
+
+        var currentMovie = $(".movies-list-poster").not(".hidden").attr("movie-id");
+
+        console.log("1: " + id);
+        console.log("2: " + currentMovie);
+
+        if(id == currentMovie){
+
+            console.log("Success");
+            return true;
+
+        }else{
+
+            console.log("Incorrect");
+            return false;
+
+        }
+
+    }
+
+    function SaveGame(){
+        currentRequest = $.ajax({
+            type: "GET",
+            url: "/api/SaveGame",
+            cache: false,
+            data: { M1: GameResults[0].id, T1: GameResults[0].time, 
+                    M2: GameResults[1].id, T2: GameResults[1].time,
+                    M3: GameResults[2].id, T3: GameResults[2].time,
+                    M4: GameResults[3].id, T4: GameResults[3].time,
+                    M5: GameResults[4].id, T5: GameResults[4].time,
+                    M6: GameResults[5].id, T6: GameResults[5].time,
+                    M7: GameResults[6].id, T7: GameResults[6].time,
+                    M8: GameResults[7].id, T8: GameResults[7].time,
+                    Email: "@Model.UserEmail",
+                    Room: "@Model.RoomHash",
+                    Genre: @Model.Genre,
+                    Dif: @Model.Dif
+            },
+            success: function (result) {
+                console.log(result);
+            }
+        });
+    }
+
+    function ShowPopup() {
+        $(".popup-container").fadeIn(0);
+        $(".popup-container > div").fadeIn(0);
+        $(".popup-container > div > div").show();
+        //$(".popup-container > div > div").addClass("magictime").removeClass("slideUp");
+        //$(".popup-container > div > div").addClass("magictime").addClass("slideUpReturn");
+    }
+
+    function HidePopup() {
+        $(".popup-container").fadeOut(0);
+        $(".popup-container > div").fadeOut(0);
+        //$(".popup-container > div > div").addClass("magictime").removeClass("slideUpReturn");
+        //$(".popup-container > div > div").addClass("magictime").addClass("slideUp").hide();
+        $(".option-list-options").html("");
+        $("#movie-input").text("");
+        $("#movie-input").val("");
+    }
+
+    function Pixelate(id){
+
+        let canvas = $(id);
+        let context = canvas.get(0).getContext("2d");
+
+        // Creating a mosaic
+        let imageData = context.createImageData(500, 500);
+        let pixels = imageData.data;
+
+        // Number of mosaic segments
+        let numTileRows = 4;
+        let numTileCols = 4;
+
+        // Dimensions of each segment
+        let tileWidth = imageData.width/numTileCols;
+        let tileHeight = imageData.height/numTileRows;
+
+        // Loop through each tile
+        for (let r = 0; r < numTileRows; r++) {
+          for (let c = 0; c < numTileCols; c++) {
+            // Set the pixel values for each tile
+            let red = Math.floor(Math.random()*255);
+            let green = Math.floor(Math.random()*255);
+            let blue = Math.floor(Math.random()*255);
+
+            // Loop through each tile pixel
+            for (let tr = 0; tr < tileHeight; tr++) {
+              for (let tc = 0; tc < tileWidth; tc++) {
+                // Calculate the true position of the tile pixel
+                let trueX = (c*tileWidth)+tc;
+                let trueY = (r*tileHeight)+tr;
+
+                // Calculate the position of the current pixel in the array
+                let pos = (trueY * (imageData.width * 4))+(trueX*4);
+
+                // Assign the colour to each pixel
+                pixels[pos] = red;
+                pixels[pos+1] = green;
+                pixels[pos+2] = blue;
+                pixels[pos+3] = 255;
+              };
+            };
+          };
+        };
+
+        // Draw image data to the canvas
+        context.putImageData(imageData, 0, 0);
+    }
+
+    function IsRoom(){
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        const room = urlParams.get('RoomHash')
+        if(room){
+            return true;
+        }
+        return false;
+    }
+
+    </script>
+
+@if (string.IsNullOrEmpty(Model.UserEmail))
+{
+    <script>
+
+        // cookie for 3 plays
+
+        $(document).ready(function () {
+
+            var count = getCookie("games");
+
+            console.log(count);
+
+            if(count === undefined || count == ""){
+                PlayCount();
+            }else{
+                if(Number(count) >= 3){
+                    // cannot play anymore
+                    GameOver();
+                }
+            }
+
+        })
+
+        function GameOver(){
+            paused = true;
+            window.onbeforeunload = null;
+            window.alert("Sajnos elérted a maximális játékok számát. Ha többet szeretnél játszani, regisztrálj be!");
+            location.href = "/Login";
+        }
+
+        function PlayCount(){
+
+            var count = getCookie("games");
+            if(count === undefined || count == ""){
+                document.cookie = "games=" + 1;
+            }else{
+                document.cookie = "games=" + Number(count) + 1;
+            }
+
+        }
+
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        </script>
+}

@@ -1,0 +1,90 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PixelPárbaj</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PixelParbaj_CORE.styles.css" asp-append-version="true" />
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <link rel="stylesheet" href="~/magic/magic.min.css" asp-append-version="true" />
+    <link rel="icon" type="image/png" href="~/favicon.png" />
+	<script src="https://cdn.jsdelivr.net/npm/js-cookie@@3.0.1/dist/js.cookie.min.js"></script>
+
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-Y5ZWJ9PHJK"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'G-Y5ZWJ9PHJK');
+	</script>
+</head>
+<body>
+
+    <div class="navbar">
+
+        <div class="nav-logo"><a href="~/Index"><img src=/gfx/Logo-1.png /></a></div>
+
+        <div class="nav-menu">
+
+            @{
+                string session = HttpContextAccessor.HttpContext.Session.GetString("Email");
+                if(!string.IsNullOrEmpty(session))
+                {
+                    <div>
+                    <a style="display: flex;align-items: center;" href="~/Profile">Szia <b style="padding-left:4px;">@ViewData["Username"]</b>!
+                    <div class="main-avatar" style="background-image: url('data:image/png;base64,@ViewData["Avatar"]')"></div>
+                    
+                    </a></div>
+                }
+                else
+                {
+                    <div><a asp-page="/Login">Belépés</a></div>
+                    <div><a asp-page="/Registration">Regisztráció</a></div>        
+                }
+            }
+            
+            <div><a asp-page="/About">Rólunk</a></div>
+
+        </div>
+
+    </div>
+
+    <div class="container">
+        <main role="main" class="pb-3 main">
+            @RenderBody()
+        </main>
+    </div>
+
+            <ul class="circles">
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+                    <li></li>
+            </ul>
+
+
+    <footer class="border-top-0 footer text-muted">
+        <div class="container">
+            &copy; @System.DateTime.Now.Year - PixelPárbaj by FreakShow
+        </div>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
