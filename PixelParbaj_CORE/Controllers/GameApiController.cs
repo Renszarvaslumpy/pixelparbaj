@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using PixelParbaj_CORE.Data;
 using PixelParbaj_CORE.Models;
@@ -94,14 +95,14 @@ namespace PixelParbaj_CORE.Controllers
                 Movie6 = M6,
                 Movie7 = M7,
                 Movie8 = M8,
-                Time1 = double.Parse(T1),
-                Time2 = double.Parse(T2),
-                Time3 = double.Parse(T3),
-                Time4 = double.Parse(T4),
-                Time5 = double.Parse(T5),
-                Time6 = double.Parse(T6),
-                Time7 = double.Parse(T7),
-                Time8 = double.Parse(T8),
+                Time1 = ParseGameTime(T1),
+                Time2 = ParseGameTime(T2),
+                Time3 = ParseGameTime(T3),
+                Time4 = ParseGameTime(T4),
+                Time5 = ParseGameTime(T5),
+                Time6 = ParseGameTime(T6),
+                Time7 = ParseGameTime(T7),
+                Time8 = ParseGameTime(T8),
                 Date = DateTime.Now,
                 Room = Room
             };
@@ -133,6 +134,16 @@ namespace PixelParbaj_CORE.Controllers
 
             int result = await ipp.SaveGame(game);
             return Ok(result);
+        }
+
+        private static double ParseGameTime(string time)
+        {
+            if (double.TryParse(time, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out double parsedTime))
+            {
+                return parsedTime;
+            }
+
+            return double.Parse(time, CultureInfo.CurrentCulture);
         }
     }
 }
